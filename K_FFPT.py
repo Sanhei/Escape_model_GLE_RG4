@@ -16,6 +16,8 @@ from model import RG_Single_exp
 
 import argparse
 import multiprocessing
+# Import distribution
+from v_distribution import initial_velocity_distribution
 
 
 
@@ -24,6 +26,9 @@ parser = argparse.ArgumentParser(description='Particle escape time by GLE in dou
 parser.add_argument('mass', metavar='m', type=float, help="Mass τₘ/τ_D")
 parser.add_argument('timestep', metavar='dt', type=float, help="The simulation time step(dt)")
 parser.add_argument('Memory',  metavar='g', type=float, help='Memory time τ_Γ')
+parser.add_argument('velocity_distribution', metavar='v0', 
+        type=str, default="const", help='Initial velocity distribution')
+
 parser.add_argument('filepath', metavar='f', 
         type=str, default="ffpt.txt", help='Save file path +.txt')
 parser.add_argument('N_transition', metavar='N', 
@@ -32,12 +37,14 @@ parser.add_argument('N_transition', metavar='N',
 args = parser.parse_args()
 
 
-print("Mass is ", args.mass, "dt is ", args.timestep, 
-        "Memory time is ", args.Memory, "Number of transitions ", args.N_transition)
+print("Mass is ", args.mass, "\n dt is ", args.timestep, 
+        "\n Memory time is ", args.Memory, "\n Number of transitions ", args.N_transition)
 
 # Multicore function preparation.
 def Multicore_RG(N):
-    return RG_Single_exp(args.timestep, args.mass, args.Memory, x0=-1, y0=0, v0=0, kT=1, U0=3)
+    fnc = initial_velocity_distribution(args.velocity_distribution)
+    return RG_Single_exp(args.timestep, args.mass, args.Memory,
+                x0=-1, y0=0, v0=fnc.generator(args.mass), kT=1, U0=3)
 
 pool_obj = multiprocessing.Pool()
 FFPT = pool_obj.map(Multicore_RG, range(args.N_transition))
