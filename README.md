@@ -1,4 +1,4 @@
-# Escape_model_GLE_RG4
+# Escape_model_GLE_RG4 (Monte Carlo initial condition)
 Kramer's escape time, is a similar problem, with the Generalized Langevin Equation. 
 
 The model is created in model.py.
